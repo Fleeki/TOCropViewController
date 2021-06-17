@@ -353,14 +353,15 @@
 
 - (void)setClampButtonGlowing:(BOOL)clampButtonGlowing
 {
-    if (_clampButtonGlowing == clampButtonGlowing)
-        return;
-    
-    _clampButtonGlowing = clampButtonGlowing;
-    
-    if (_clampButtonGlowing)
-        self.clampButton.tintColor = nil;
-    else
+    // FORK Mathias Roikjær - Just keep it white.
+//    if (_clampButtonGlowing == clampButtonGlowing)
+//        return;
+//
+//    _clampButtonGlowing = clampButtonGlowing;
+//
+//    if (_clampButtonGlowing)
+//        self.clampButton.tintColor = nil;
+//    else
         self.clampButton.tintColor = [UIColor whiteColor];
 }
 

@@ -84,7 +84,7 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
         // Set up base view controller behaviour
         self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         self.modalPresentationStyle = UIModalPresentationFullScreen;
-        self.automaticallyAdjustsScrollViewInsets = NO;
+        
         self.hidesNavigationBar = true;
         
         // Controller object that handles the transition animation when presenting / dismissing this app
@@ -562,14 +562,19 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
 #pragma mark - Aspect Ratio Handling -
 - (void)showAspectRatioDialog
 {
-    if (self.cropView.aspectRatioLockEnabled) {
-        self.cropView.aspectRatioLockEnabled = NO;
-        self.toolbar.clampButtonGlowing = NO;
-        return;
-    }
+
+    // FORK Mathias Roikjær - We want the user to be able to change aspect ratio on the fly.
+    // Locking should always be enabled
+
+
+//    if (self.cropView.aspectRatioLockEnabled) {
+//        self.cropView.aspectRatioLockEnabled = NO;
+//        self.toolbar.clampButtonGlowing = NO;
+//        return;
+//    }
     
     //Depending on the shape of the image, work out if horizontal, or vertical options are required
-    BOOL verticalCropBox = self.cropView.cropBoxAspectRatioIsPortrait;
+    //BOOL verticalCropBox = self.cropView.cropBoxAspectRatioIsPortrait;
     
     // Get the resource bundle depending on the framework/dependency manager we're using
 	NSBundle *resourceBundle = TO_CROP_VIEW_RESOURCE_BUNDLE_FOR_OBJECT(self);
@@ -580,17 +585,27 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
 	NSString *squareButtonTitle = NSLocalizedStringFromTableInBundle(@"Square", @"TOCropViewControllerLocalizable", resourceBundle, nil);
     
     //Prepare the list that will be fed to the alert view/controller
-    
     // Ratio titles according to the order of enum TOCropViewControllerAspectRatioPreset
-    NSArray<NSString *> *portraitRatioTitles = @[originalButtonTitle, squareButtonTitle, @"2:3", @"3:5", @"3:4", @"4:5", @"5:7", @"9:16"];
-    NSArray<NSString *> *landscapeRatioTitles = @[originalButtonTitle, squareButtonTitle, @"3:2", @"5:3", @"4:3", @"5:4", @"7:5", @"16:9"];
+
+
+    // FORK Mathias Roikjær - Merged the two lists into one
+    NSArray<NSString *> *ratioTitles  = @[originalButtonTitle, squareButtonTitle, @"2:3", @"3:2",
+                                          @"3:5", @"5:3",
+                                          @"3:4", @"4:3",
+                                          @"4:5", @"5:4",
+                                          @"5:7", @"7:5",
+                                          @"9:16", @"16:9"
+    ];
+
+
 
     NSMutableArray *ratioValues = [NSMutableArray array];
     NSMutableArray *itemStrings = [NSMutableArray array];
 
+    // FORK Mathias Roikjær - Ignore the landscape / portrait checks
     if (self.allowedAspectRatios == nil) {
         for (NSInteger i = 0; i < TOCropViewControllerAspectRatioPresetCustom; i++) {
-            NSString *itemTitle = verticalCropBox ? portraitRatioTitles[i] : landscapeRatioTitles[i];
+            NSString *itemTitle = ratioTitles[i];
             [itemStrings addObject:itemTitle];
             [ratioValues addObject:@(i)];
         }
@@ -598,7 +613,7 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     else {
         for (NSNumber *allowedRatio in self.allowedAspectRatios) {
             TOCropViewControllerAspectRatioPreset ratio = allowedRatio.integerValue;
-            NSString *itemTitle = verticalCropBox ? portraitRatioTitles[ratio] : landscapeRatioTitles[ratio];
+            NSString *itemTitle = ratioTitles[ratio];;
             [itemStrings addObject:itemTitle];
             [ratioValues addObject:allowedRatio];
         }
@@ -664,22 +679,43 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
         case TOCropViewControllerAspectRatioPresetCustom:
             aspectRatio = self.customAspectRatio;
             break;
+        case TOCropViewControllerAspectRatioPreset2x3:
+            aspectRatio = CGSizeMake(2.0f, 3.0f);
+            break;
+        case TOCropViewControllerAspectRatioPreset3x5:
+            aspectRatio = CGSizeMake(3.0f, 5.0f);
+            break;
+        case TOCropViewControllerAspectRatioPreset3x4:
+            aspectRatio = CGSizeMake(3.0f, 4.0f);
+            break;
+        case TOCropViewControllerAspectRatioPreset4x5:
+            aspectRatio = CGSizeMake(4.0f, 5.0f);
+            break;
+        case TOCropViewControllerAspectRatioPreset5x7:
+            aspectRatio = CGSizeMake(5.0f, 7.0f);
+            break;
+        case TOCropViewControllerAspectRatioPreset9x16:
+            aspectRatio = CGSizeMake(9.0f, 16.0f);
+            break;
     }
-    
+
+    // FORK Mathias Roikjær - Removed so the aspect ratios always represent the right option. (Width, Height)
+
     // If the aspect ratio lock is not enabled, allow a swap
     // If the aspect ratio lock is on, allow a aspect ratio swap
     // only if the allowDimensionSwap option is specified.
-    BOOL aspectRatioCanSwapDimensions = !self.aspectRatioLockEnabled ||
-                                (self.aspectRatioLockEnabled && self.aspectRatioLockDimensionSwapEnabled);
-    
+   // BOOL aspectRatioCanSwapDimensions = !self.aspectRatioLockEnabled ||
+    //                            (self.aspectRatioLockEnabled && self.aspectRatioLockDimensionSwapEnabled);
+
+
     //If the image is a portrait shape, flip the aspect ratio to match
-    if (self.cropView.cropBoxAspectRatioIsPortrait &&
-        aspectRatioCanSwapDimensions)
-    {
-        CGFloat width = aspectRatio.width;
-        aspectRatio.width = aspectRatio.height;
-        aspectRatio.height = width;
-    }
+//    if (self.cropView.cropBoxAspectRatioIsPortrait &&
+//        aspectRatioCanSwapDimensions)
+//    {
+//        CGFloat width = aspectRatio.width;
+//        aspectRatio.width = aspectRatio.height;
+//        aspectRatio.height = width;
+//    }
     
     [self.cropView setAspectRatio:aspectRatio animated:animated];
 }
@@ -1113,9 +1149,15 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
 {
     self.toolbar.clampButtonGlowing = aspectRatioLockEnabled;
     self.cropView.aspectRatioLockEnabled = aspectRatioLockEnabled;
-    if (!self.aspectRatioPickerButtonHidden) {
-        self.aspectRatioPickerButtonHidden = (aspectRatioLockEnabled && self.resetAspectRatioEnabled == NO);
-    }
+
+    // FORK Mathias Roikjær - We want the aspect ratio selector to be there.
+    // This works because we dont allow freeform ever.
+
+    
+
+//    if (!self.aspectRatioPickerButtonHidden) {
+//        self.aspectRatioPickerButtonHidden = (aspectRatioLockEnabled && self.resetAspectRatioEnabled == NO);
+//    }
 }
 
 - (void)setAspectRatioLockDimensionSwapEnabled:(BOOL)aspectRatioLockDimensionSwapEnabled
@@ -1187,9 +1229,14 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
 - (void)setResetAspectRatioEnabled:(BOOL)resetAspectRatioEnabled
 {
     self.cropView.resetAspectRatioEnabled = resetAspectRatioEnabled;
-    if (!self.aspectRatioPickerButtonHidden) {
-        self.aspectRatioPickerButtonHidden = (resetAspectRatioEnabled == NO && self.aspectRatioLockEnabled);
-    }
+
+    // FORK Mathias Roikjær - We want the aspect ratio selector to be there.
+    // This works because we dont allow freeform ever.
+
+
+//    if (!self.aspectRatioPickerButtonHidden) {
+//        self.aspectRatioPickerButtonHidden = (resetAspectRatioEnabled == NO && self.aspectRatioLockEnabled);
+//    }
 }
 
 - (void)setCustomAspectRatio:(CGSize)customAspectRatio
@@ -1276,7 +1323,7 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
         // We do need to include the status bar height on devices
         // that have a physical hardware inset, like an iPhone X notch
         BOOL hardwareRelatedInset = self.view.safeAreaInsets.bottom > FLT_EPSILON
-                                    && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+                                    && UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone;
 
         // Always have insetting on Mac Catalyst
         #if TARGET_OS_MACCATALYST
@@ -1294,7 +1341,7 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
             statusBarHeight = 0.0f;
         }
         else {
-            statusBarHeight = self.topLayoutGuide.length;
+            statusBarHeight = self.view.safeAreaInsets.top;
         }
     }
     

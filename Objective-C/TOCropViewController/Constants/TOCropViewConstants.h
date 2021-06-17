@@ -33,15 +33,28 @@ typedef NS_ENUM(NSInteger, TOCropViewCroppingStyle) {
 /**
  Preset values of the most common aspect ratios that can be used to quickly configure
  the crop view controller.
+ FORK Mathias Roikjær - Added Presets for opposite dimensions
  */
 typedef NS_ENUM(NSInteger, TOCropViewControllerAspectRatioPreset) {
     TOCropViewControllerAspectRatioPresetOriginal,
     TOCropViewControllerAspectRatioPresetSquare,
+
+    TOCropViewControllerAspectRatioPreset2x3,
     TOCropViewControllerAspectRatioPreset3x2,
+
+    TOCropViewControllerAspectRatioPreset3x5,
     TOCropViewControllerAspectRatioPreset5x3,
+
+    TOCropViewControllerAspectRatioPreset3x4,
     TOCropViewControllerAspectRatioPreset4x3,
+
+    TOCropViewControllerAspectRatioPreset4x5,
     TOCropViewControllerAspectRatioPreset5x4,
+
+    TOCropViewControllerAspectRatioPreset5x7,
     TOCropViewControllerAspectRatioPreset7x5,
+
+    TOCropViewControllerAspectRatioPreset9x16,
     TOCropViewControllerAspectRatioPreset16x9,
     TOCropViewControllerAspectRatioPresetCustom
 };

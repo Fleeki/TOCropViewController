@@ -162,11 +162,7 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     self.scrollView.showsVerticalScrollIndicator = NO;
     self.scrollView.delegate = self;
     [self addSubview:self.scrollView];
-
-    // Disable smart inset behavior in iOS 11
-    if (@available(iOS 11.0, *)) {
-        self.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
+    self.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
 
     self.scrollView.touchesBegan = ^{ [weakSelf startEditing]; };
     self.scrollView.touchesEnded = ^{ [weakSelf startResetTimer]; };

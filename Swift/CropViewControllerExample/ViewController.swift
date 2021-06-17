@@ -21,9 +21,9 @@ class ViewController: UIViewController, CropViewControllerDelegate, UIImagePicke
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = (info[UIImagePickerController.InfoKey.originalImage] as? UIImage) else { return }
         
-        let cropController = CropViewController(croppingStyle: croppingStyle, image: image)
+
         //cropController.modalPresentationStyle = .fullScreen
-        cropController.delegate = self
+
         
         // Uncomment this if you wish to provide extra instructions via a title label
         //cropController.title = "Crop Image"
@@ -33,10 +33,20 @@ class ViewController: UIViewController, CropViewControllerDelegate, UIImagePicke
         //cropController.imageCropFrame = CGRect(x: 0, y: 0, width: 2848, height: 4288) //The initial frame that the crop controller will have visible.
     
         // -- Uncomment the following lines of code to test out the aspect ratio features --
-        //cropController.aspectRatioPreset = .presetSquare; //Set the initial aspect ratio as a square
-        //cropController.aspectRatioLockEnabled = true // The crop box is locked to the aspect ratio and can't be resized away from it
-        //cropController.resetAspectRatioEnabled = false // When tapping 'reset', the aspect ratio will NOT be reset back to default
-        //cropController.aspectRatioPickerButtonHidden = true
+
+        // Preset post
+        let cropController = CropViewController(croppingStyle: .default, image: image)
+        cropController.delegate = self
+        cropController.aspectRatioPreset = .preset3x4; //Set the initial aspect ratio as a square
+        cropController.aspectRatioLockEnabled = true // The crop box is locked to the aspect ratio and can't be resized away from it
+        cropController.resetAspectRatioEnabled = false // When tapping 'reset', the aspect ratio will NOT be reset back to default
+        cropController.allowedAspectRatios = [.preset3x4, .preset9x16]
+
+        // Preset circular
+//        let cropController = CropViewController(croppingStyle: .circular, image: image)
+//        cropController.delegate = self
+
+        //cropController.aspectRatioPickerButtonHidden = false
     
         // -- Uncomment this line of code to place the toolbar at the top of the view controller --
         //cropController.toolbarPosition = .top
